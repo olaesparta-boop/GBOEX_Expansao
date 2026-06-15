@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GBOEX · Radar de Expansão — Avaliação de Praças</title>
+<link rel="icon" href="https://www.gboex.com.br/wp-content/uploads/2025/03/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14233A; --ink-soft:#33425A; --paper:#F2F4F7; --surface:#FFFFFF;
+  --line:#D7DCE4; --line-soft:#E7EAF0; --muted:#5E6B7C; --muted-2:#8893A2;
+  /* identidade GBOEX — azul institucional + verde (gradiente do logotipo) */
+  --brand:#103A63; --brand-deep:#0E2A47; --brand-2:#B09830;
+  --brass:#B09830; --brass-soft:#F3ECD7; --brass-ink:#6E5D18;
+  --good:#2E6B4F; --good-bg:#E5F1EA;
+  --warn:#C0892F; --warn-bg:#F8EFDD; --warn-ink:#7E5A14;
+  --neu:#62706C;  --neu-bg:#EAEDEB;
+  --bad:#A23A33;  --bad-bg:#F6E5E3;
+  --blue:#2F5E8C; --blue-soft:#E3EBF3;
+  --r:8px; --r-lg:12px;
+  --serif:'Poppins','Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px 90px;}
+h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;letter-spacing:.2px;}
+.tnum{font-variant-numeric:tabular-nums;}
+
+.hdr{background:linear-gradient(108deg,#0A2540 0%,#103A63 60%,#16456F 100%);color:#fff;border-bottom:3px solid var(--brass);}
+.hdr-in{max-width:1000px;margin:0 auto;padding:24px 20px 22px;}
+.logo-lockup{display:inline-block;margin-bottom:14px;}
+.brand-logo{height:42px;width:auto;display:block;}
+.eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#D8C56A;font-weight:500;}
+.hdr h1{color:#fff;font-size:31px;line-height:1.1;margin:8px 0 6px;}
+.hdr p{margin:0;color:#D6E3F2;font-size:14px;max-width:660px;}
+.hdr-meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:16px;font-size:12.5px;color:#B9CDE4;}
+.hdr-meta b{color:#fff;font-weight:500;}
+
+section{margin-top:30px;}
+.sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:18px;}
+.sec-num{font-family:var(--serif);font-size:14px;color:var(--brand);font-weight:600;min-width:24px;}
+.sec-head h2{font-size:20px;}
+.sec-head .sub{margin-left:auto;font-size:12.5px;color:var(--muted);}
+
+label{font-size:12.5px;color:var(--muted);display:block;margin-bottom:5px;}
+input[type=text],input[type=number],select,textarea{width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:9px 11px;}
+input,select{height:38px;}
+textarea{min-height:64px;resize:vertical;line-height:1.5;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brass-soft);}
+.grid{display:grid;gap:14px;}
+.g5{grid-template-columns:1.4fr .5fr .8fr 1fr 1fr;}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:1fr 1fr;}
+@media(max-width:760px){.g5,.g4,.g3,.g2{grid-template-columns:1fr 1fr;}}
+@media(max-width:520px){.g5,.g4,.g3,.g2{grid-template-columns:1fr;}}
+
+.seg-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(max-width:620px){.seg-row{grid-template-columns:1fr;}}
+.seg{cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 12px;text-align:left;transition:.15s;}
+.seg:hover{border-color:var(--brand);}
+.seg.on{border-color:var(--brand-deep);background:var(--brand-deep);color:#fff;}
+.seg .st{font-family:var(--serif);font-size:16px;font-weight:600;display:block;}
+.seg .sd{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.35;}
+.seg.on .sd{color:#BFD3EA;}
+
+.gate{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;}
+.gate select{width:140px;flex:none;}
+.gate .gt{font-size:13.5px;color:var(--ink-soft);}
+.gate.fail{border-color:var(--bad);background:var(--bad-bg);}
+
+.crit{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:12px;}
+.crit-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+.crit-name{font-family:var(--serif);font-size:16px;font-weight:600;}
+.crit-what{font-size:12.5px;color:var(--muted);margin-top:2px;max-width:600px;}
+.wbadge{margin-left:auto;flex:none;text-align:center;background:var(--brass-soft);color:var(--brass-ink);border-radius:var(--r);padding:4px 10px;min-width:54px;}
+.wbadge .wn{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;}
+.wbadge .wl{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;}
+.anchors{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+@media(max-width:620px){.anchors{grid-template-columns:1fr;}}
+.anc{font-size:11.5px;color:var(--muted);background:var(--paper);border-radius:var(--r);padding:7px 9px;line-height:1.4;}
+.anc b{display:block;color:var(--ink-soft);font-weight:500;margin-bottom:2px;}
+.slide-row{display:flex;align-items:center;gap:14px;}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:5px;border-radius:3px;background:var(--line);outline:none;padding:0;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;background:var(--brand);border:3px solid var(--surface);box-shadow:0 0 0 1px var(--brand);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--brand);border:3px solid var(--surface);cursor:pointer;}
+.sval{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;min-width:20px;text-align:center;}
+.scontrib{font-size:11.5px;color:var(--muted-2);min-width:96px;text-align:right;}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px;}
+.mini{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--brand);font-weight:500;}
+.fm-out{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px;}
+@media(max-width:620px){.fm-out{grid-template-columns:1fr 1fr;}}
+.stat{background:var(--paper);border-radius:var(--r);padding:12px 14px;}
+.stat .sl{font-size:11.5px;color:var(--muted);}
+.stat .sv{font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px;}
+.stat .sv.small{font-size:15px;}
+.finchart{margin-top:16px;}
+.finchart svg{width:100%;height:auto;display:block;}
+.applybar{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap;}
+.applybar .sugg{font-size:13px;color:var(--ink-soft);}
+.applybar .sugg b{font-family:var(--serif);font-size:17px;color:var(--brand-deep);}
+
+.result{background:linear-gradient(160deg,#16304F 0%,#102843 100%);color:var(--paper);border-radius:var(--r-lg);padding:22px 24px;}
+.result h2{color:var(--paper);font-size:20px;margin-bottom:4px;}
+.result .rsub{color:#AEB9C6;font-size:12.5px;margin-bottom:18px;}
+.exec{background:#1B3450;border-left:3px solid var(--brass);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;margin-bottom:20px;font-size:14.5px;color:#E7ECF3;line-height:1.5;}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px;}
+@media(max-width:760px){.rgrid{grid-template-columns:1fr;}}
+.bignum{font-family:var(--serif);font-size:58px;line-height:1;font-weight:600;font-variant-numeric:tabular-nums;}
+.bignum .of{font-size:23px;color:#8A94A4;}
+.r100{font-size:13px;color:#AEB9C6;margin-top:4px;}
+.meter{margin-top:16px;}
+.meter svg,.radar svg{width:100%;height:auto;display:block;}
+.verdict-pill{display:inline-block;font-family:var(--serif);font-size:18px;font-weight:600;padding:7px 16px;border-radius:var(--r);}
+.rfacts{border-left:1px solid #2C435E;padding-left:22px;}
+.rfact{margin-bottom:13px;}
+.rfact .fl{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--brand-2);}
+.rfact .fv{font-size:14.5px;color:var(--paper);margin-top:2px;}
+.radar{margin-top:8px;}
+.drivers{margin-top:6px;}
+.drv{display:flex;align-items:center;gap:10px;font-size:12.5px;margin-bottom:6px;}
+.drv .dn{flex:1;color:#C3CAD6;}
+.drvbar{height:6px;border-radius:3px;background:#2C435E;flex:none;width:110px;overflow:hidden;}
+.drvbar i{display:block;height:100%;background:var(--brand-2);}
+.drv .dv{width:34px;text-align:right;color:var(--paper);font-variant-numeric:tabular-nums;}
+
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+button.act{cursor:pointer;font-family:var(--sans);font-size:13.5px;font-weight:500;border-radius:var(--r);padding:10px 16px;border:1px solid var(--brand-deep);background:var(--brand-deep);color:#fff;transition:.15s;display:inline-flex;align-items:center;gap:7px;}
+button.act:hover{background:#0A3160;}
+button.ghost{background:transparent;color:var(--brand-deep);}
+button.ghost:hover{background:var(--brand-deep);color:#fff;}
+button.dim{border-color:var(--line);color:var(--muted);background:transparent;}
+button.dim:hover{border-color:var(--bad);color:var(--bad);}
+button.sm{font-size:12px;padding:6px 11px;border-radius:var(--r);border:1px solid var(--line);background:transparent;color:var(--ink-soft);cursor:pointer;}
+button.sm:hover{border-color:var(--brand);color:var(--brand-deep);}
+
+table.rank{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;}
+table.rank th{text-align:left;font-weight:500;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:10px 10px;border-bottom:1px solid var(--line);background:var(--paper);}
+table.rank td{padding:10px 10px;border-bottom:1px solid var(--line-soft);vertical-align:middle;}
+table.rank tr:last-child td{border-bottom:none;}
+.rk-pos{font-family:var(--serif);font-weight:600;color:var(--brand);}
+.tag{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.tag.good{background:var(--good-bg);color:var(--good);}
+.tag.warn{background:var(--warn-bg);color:var(--warn-ink);}
+.tag.neu{background:var(--neu-bg);color:var(--neu);}
+.tag.bad{background:var(--bad-bg);color:var(--bad);}
+.swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+.empty{font-size:13px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--r-lg);padding:22px;text-align:center;}
+.cmp-radar{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;}
+.cmp-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);margin-top:8px;justify-content:center;}
+
+.weditor table{width:100%;border-collapse:collapse;font-size:13px;}
+.weditor th,.weditor td{padding:8px 8px;border-bottom:1px solid var(--line-soft);text-align:center;}
+.weditor th:first-child,.weditor td:first-child{text-align:left;}
+.weditor th{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:500;}
+.weditor input{width:64px;height:32px;text-align:center;padding:4px;margin:0 auto;}
+.wsum{font-weight:600;font-variant-numeric:tabular-nums;}
+.wsum.ok{color:var(--good);}
+.wsum.err{color:var(--bad);}
+
+details{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:4px 18px;margin-bottom:10px;}
+summary{cursor:pointer;font-family:var(--serif);font-size:15.5px;font-weight:600;padding:12px 0;list-style:none;}
+summary::-webkit-details-marker{display:none;}
+summary::before{content:'+';color:var(--brand);font-weight:600;margin-right:10px;}
+details[open] summary::before{content:'–';}
+.method-body{font-size:13.5px;color:var(--ink-soft);padding:0 0 16px;line-height:1.65;}
+.method-body table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0;}
+.method-body th,.method-body td{border:1px solid var(--line);padding:6px 9px;text-align:left;}
+.method-body th{background:var(--paper);font-weight:500;}
+.callout{background:var(--warn-bg);border-left:3px solid var(--warn);border-radius:0 var(--r) var(--r) 0;padding:10px 14px;font-size:12.5px;color:var(--warn-ink);margin:12px 0;}
+.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted-2);line-height:1.6;}
+.editing{font-size:12.5px;color:var(--brass-ink);background:var(--brass-soft);border-radius:var(--r);padding:6px 12px;display:none;margin-bottom:12px;}
+.editing.on{display:inline-block;}
+
+@media print{
+  body{background:#fff;}
+  .hdr{background:#fff;color:var(--ink);border-bottom:2px solid var(--brand-deep);}
+  .hdr h1,.hdr p{color:var(--ink)!important;}
+  .eyebrow{color:var(--brand)!important;}
+  .hdr-meta,.hdr-meta b{color:var(--ink-soft)!important;}
+  .logo-lockup{background:#0E2A47;padding:10px 14px;border-radius:8px;}
+  .result{background:#fff;color:var(--ink);border:1px solid var(--brand-deep);}
+  .result h2,.bignum,.rfact .fv,.drv .dv,.exec{color:var(--ink)!important;}
+  .exec{background:#EEF3EF;}
+  .no-print{display:none!important;}
+  section{break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <span class="logo-lockup"><img class="brand-logo" src="data:image/webp;base64,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" alt="GBOEX"></span>
+    <div class="eyebrow">Previdência e Seguro de Pessoas · desde 1913</div>
+    <h1>Radar de Expansão</h1>
+    <p>Instrumento de decisão para novas unidades. Cada praça passa por gates eliminatórios, é classificada por tipologia de ponto, recebe nota de 0 a 5 em critérios ponderados e é testada num modelo financeiro de viabilidade. O veredito e o formato recomendado saem calculados.</p>
+    <div class="hdr-meta">
+      <span>Avaliador: <b id="m-aval">—</b></span>
+      <span>Praça: <b id="m-praca">—</b></span>
+      <span>Data: <b id="m-data">—</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>Identificação da praça</h2></div>
+    <div class="grid g5">
+      <div><label>Cidade / praça</label><input id="praca" type="text" placeholder="Ex.: Caxias do Sul — RS"></div>
+      <div><label>UF</label><input id="uf" type="text" placeholder="RS" maxlength="2"></div>
+      <div><label>População aprox.</label><input id="pop" type="text" placeholder="Ex.: 510 mil"></div>
+      <div><label>Responsável</label><input id="aval" type="text" placeholder="Nome"></div>
+      <div><label>Data</label><input id="data" type="text" placeholder="dd/mm/aaaa"></div>
+    </div>
+    <div style="margin-top:14px;"><label>Observações / fontes consultadas</label><textarea id="obs" placeholder="Notas, fontes (IBGE, Junta Comercial, base interna), restrições conhecidas…"></textarea></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Calibração do contexto</h2><span class="sub">dois números que reposicionam a leitura</span></div>
+    <div class="grid g2">
+      <div><label>Origem da venda na praça (estimada)</label>
+        <select id="cal-canal"><option value="corretor">Predominância de corretor / convênio</option><option value="misto">Misto (corretor + walk-in)</option><option value="balcao">Predominância de walk-in / balcão</option></select></div>
+      <div><label>Grau de digitalização da base local</label>
+        <select id="cal-digi"><option value="alta">Alta — base usa app / Área do Cliente</option><option value="media">Média</option><option value="baixa">Baixa — base idosa, pouco digital</option></select></div>
+    </div>
+    <div id="cal-note" class="callout" style="margin-top:14px;"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Tipologia do ponto</h2><span class="sub">define os pesos dos critérios</span></div>
+    <div class="seg-row" id="seg">
+      <button class="seg on" data-t="roi"><span class="st">Ponto-ROI</span><span class="sd">Tem que se pagar e dar margem. Decisão fria de unit economics.</span></button>
+      <button class="seg" data-t="presenca"><span class="st">Ponto-Presença</span><span class="sd">Fincar bandeira, adensar território. Aceita payback longo.</span></button>
+      <button class="seg" data-t="servico"><span class="st">Ponto-Serviço</span><span class="sd">Existe para servir e reter a base já existente.</span></button>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Gates eliminatórios</h2><span class="sub">reprovar em um já barra a praça</span></div>
+    <div class="gate" id="gate1"><select id="g1"><option value="1">Atende</option><option value="0">Não atende</option></select><span class="gt">Entrega da rede de prestadores na praça — assistência funeral 24h, emergência residencial, telemedicina. Vender sem poder entregar gera sinistro mal atendido e dano de marca.</span></div>
+    <div class="gate" id="gate2"><select id="g2"><option value="1">Atende</option><option value="0">Não atende</option></select><span class="gt">Conformidade SUSEP — estrutura mínima de atendimento e PLD para operar na nova praça.</span></div>
+    <div class="gate" id="gate3"><select id="g3"><option value="1">Atende</option><option value="0">Não atende</option></select><span class="gt">Canibalização aceitável — o ponto não apenas transfere produção de corretor ou unidade vizinha (crescimento real, não realocação de margem).</span></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Critérios ponderados</h2><span class="sub">0 nulo · 1 muito fraco · 2 fraco · 3 médio · 4 forte · 5 excelente</span></div>
+    <div id="crits"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>Modelo financeiro da unidade</h2><span class="sub">o ponto se paga? aqui o critério de viabilidade vira número</span></div>
+    <div class="panel">
+      <div class="grid g4">
+        <div><label>Capex inicial (R$)</label><input id="f-capex" type="number" value="120000" min="0" step="1000"></div>
+        <div><label>Custo fixo mensal (R$)</label><input id="f-fixo" type="number" value="18000" min="0" step="500"></div>
+        <div><label>Novos planos / mês</label><input id="f-novos" type="number" value="25" min="0" step="1"></div>
+        <div><label>Ticket médio mensal (R$)</label><input id="f-ticket" type="number" value="90" min="0" step="5"></div>
+        <div><label>Margem de contribuição (%)</label><input id="f-margem" type="number" value="35" min="0" max="100" step="1"></div>
+        <div><label>Churn mensal (%)</label><input id="f-churn" type="number" value="1.0" min="0" max="100" step="0.1"></div>
+        <div><label>Horizonte (meses)</label><input id="f-hor" type="number" value="36" min="6" max="120" step="1"></div>
+        <div style="display:flex;align-items:flex-end;"><span style="font-size:11.5px;color:var(--muted-2);line-height:1.4;">Margem = parcela do ticket que sobra após comissão de corretor e provisão de sinistro/pecúlio.</span></div>
+      </div>
+      <div class="fm-out">
+        <div class="stat"><div class="sl">Break-even operacional</div><div class="sv tnum" id="fm-be">—</div></div>
+        <div class="stat"><div class="sl">Payback do Capex</div><div class="sv tnum" id="fm-pb">—</div></div>
+        <div class="stat"><div class="sl">Resultado acumulado no horizonte</div><div class="sv tnum small" id="fm-acum">—</div></div>
+        <div class="stat"><div class="sl">Planos ativos ao fim</div><div class="sv tnum" id="fm-ativos">—</div></div>
+      </div>
+      <div class="finchart" id="fm-chart"></div>
+      <div class="applybar">
+        <span class="sugg">Nota de viabilidade sugerida pelo modelo: <b id="fm-score">—</b> / 5</span>
+        <button class="act ghost sm" id="fm-apply" style="font-size:13px;padding:8px 14px;">Usar como nota de “Viabilidade econômica”</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head no-print"><span class="sec-num">07</span><h2>Resultado</h2></div>
+    <div class="result">
+      <h2>Veredito da praça</h2>
+      <div class="rsub" id="r-context">—</div>
+      <div class="exec" id="r-exec">Preencha a avaliação para gerar a recomendação.</div>
+      <div class="rgrid">
+        <div>
+          <div class="bignum tnum"><span id="r-score">0,00</span><span class="of"> / 5</span></div>
+          <div class="r100"><span id="r-100">0</span> de 100 pontos</div>
+          <div style="margin-top:14px;"><span class="verdict-pill" id="r-pill" style="background:var(--neu-bg);color:var(--neu);">—</span></div>
+          <div class="meter" id="meter"></div>
+          <div class="rfacts" style="border-left:none;padding-left:0;margin-top:18px;">
+            <div class="rfact"><div class="fl">Formato recomendado</div><div class="fv" id="r-format">—</div></div>
+            <div class="rfact"><div class="fl">Expectativa de payback</div><div class="fv" id="r-payback">—</div></div>
+            <div class="rfact"><div class="fl">Faixa de investimento</div><div class="fv" id="r-capex">—</div></div>
+          </div>
+        </div>
+        <div class="rfacts">
+          <div class="fl" style="color:var(--brand-2);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">Perfil da praça</div>
+          <div class="radar" id="r-radar"></div>
+          <div class="fl" style="color:var(--brand-2);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin:14px 0 8px;">O que move o score</div>
+          <div class="drivers" id="r-drivers"></div>
+        </div>
+      </div>
+    </div>
+    <div class="btnrow no-print">
+      <button class="act" id="add"><span>＋</span> <span id="add-label">Salvar praça na comparação</span></button>
+      <button class="act ghost" id="print"><span>⎙</span> Imprimir / PDF</button>
+      <button class="act ghost" id="csv"><span>↧</span> Exportar CSV</button>
+      <button class="act dim" id="reset">Limpar formulário</button>
+    </div>
+    <div class="editing" id="editing"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">08</span><h2>Comparação de praças</h2><span class="sub">ranqueada por veredito e score</span></div>
+    <div id="rankhost"><div class="empty">Nenhuma praça salva ainda. Preencha a avaliação e clique em “Salvar praça na comparação” (seção 07) — ou clique em “Carregar exemplo” abaixo.</div></div>
+    <div id="cmp-radar-host"></div>
+    <div class="btnrow no-print">
+      <button class="act ghost sm" id="demo" style="font-size:13px;padding:9px 14px;">＋ Carregar exemplo</button>
+      <button class="act ghost sm" id="save-json" style="font-size:13px;padding:9px 14px;">↧ Salvar sessão (JSON)</button>
+      <button class="act ghost sm" id="load-json" style="font-size:13px;padding:9px 14px;">↥ Carregar sessão</button>
+      <input type="file" id="file-json" accept="application/json" style="display:none;">
+      <button class="act dim sm" id="clear-all" style="font-size:13px;padding:9px 14px;">Limpar comparação</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">09</span><h2>Calibração de pesos</h2><span class="sub">para homologação da diretoria · cada coluna soma 100%</span></div>
+    <div class="panel weditor">
+      <table id="wtable"></table>
+      <div class="btnrow"><button class="act ghost sm" id="w-reset" style="font-size:13px;padding:8px 14px;">Restaurar pesos padrão</button></div>
+      <div class="callout">Ajuste os pesos e homologue com a diretoria. O ideal é testá-los contra praças que já deram certo: um bom modelo deve “acertar” o histórico. Colunas que não somam 100% aparecem em vermelho.</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">10</span><h2>Metodologia e notas</h2></div>
+    <details><summary>Lógica do veredito</summary><div class="method-body">
+      <table><tr><th>Faixa (0–5)</th><th>Veredito</th><th>Leitura</th></tr>
+      <tr><td>Qualquer gate reprovado</td><td>Reprovado</td><td>Barrado independentemente da nota.</td></tr>
+      <tr><td>≥ 4,0</td><td>Prioritária</td><td>Abrir; investimento justificado.</td></tr>
+      <tr><td>3,0 – 3,9</td><td>Viável</td><td>Abrir em formato enxuto que caiba na margem.</td></tr>
+      <tr><td>2,0 – 2,9</td><td>Observação</td><td>Não abrir agora; reavaliar com convênio âncora ou tração.</td></tr>
+      <tr><td>&lt; 2,0</td><td>Descartar</td><td>Atender de forma 100% remota.</td></tr></table>
+    </div></details>
+    <details><summary>Como o modelo financeiro funciona</summary><div class="method-body">
+      <p>Simulação mês a mês ao longo do horizonte. A cada mês: <b>ativos = ativos anteriores × (1 − churn) + novos planos</b>. Receita = ativos × ticket. Margem de contribuição = receita × margem%. Resultado do mês = margem − custo fixo. Acumulado parte de −Capex.</p>
+      <p><b>Break-even operacional:</b> primeiro mês em que a margem cobre o custo fixo. <b>Payback do Capex:</b> primeiro mês em que o acumulado fica positivo. A nota sugerida (0–5) deriva do payback: ≤18m → 5; ≤24m → 4; ≤36m → 3; sem payback mas com break-even → 2; sem break-even → 0–1.</p>
+      <div class="callout">Modelo de primeira aproximação para comparar praças sob as mesmas premissas — não substitui a nota atuarial. Substitua as premissas por números oficiais antes de decidir.</div>
+    </div></details>
+    <details><summary>Regra de ouro e premissas a confirmar</summary><div class="method-body">
+      <p><b>Digitalize o transacional, fisicalize o emocional.</b> O balcão do GBOEX é majoritariamente serviço da carteira existente; a maior parte (2ª via, cadastro, dúvida de reajuste) é digitalizável. O que justifica presença física é o momento da verdade — habilitação do pecúlio na hora do luto, alteração de beneficiário e a confiança do público idoso.</p>
+      <div class="callout">A confirmar com o cliente: (1) % real de venda walk-in vs. corretor; (2) digitalização efetiva da base; (3) Capex e custo fixo reais por formato; (4) planos ativos por praça; (5) margem de contribuição por produto. Pesos, faixas e o modelo são parametrizáveis.</div>
+    </div></details>
+  </section>
+
+  <div class="foot">
+    GBOEX — Grêmio Beneficente · Entidade Aberta de Previdência Complementar regulada pela SUSEP · CNPJ 92.872.100/0001-26 · fundada em 1913. Instrumento de apoio à decisão de expansão de rede. Pesos, faixas, modelo financeiro e recomendações são parametrizáveis e devem ser homologados pela diretoria. Dados de mercado e custos devem rastrear fonte oficial ou ser marcados “a confirmar”. Logotipo e marca: propriedade do GBOEX.
+  </div>
+</div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var C=[
+    {n:"Densidade de corretores ativos",sn:"Corretores",h:"Base de corretores e parceiros que já vendem previdência na praça. Sem corretor, a unidade vira custo fixo sem motor de venda.",a:["Nenhum corretor parceiro ativo.","Alguns corretores, sem produção recorrente.","Base consolidada já vendendo pecúlio."]},
+    {n:"Viabilidade econômica",sn:"Viabilidade",h:"Break-even em planos ativos, relação LTV/CAC e tempo de maturação. Pode ser alimentada pelo modelo da seção 06.",a:["Custo fixo excede a margem atingível.","Break-even possível em 24–36 meses, com risco.","Break-even rápido (<18m) e baixa evasão."]},
+    {n:"Demanda (renda + demografia)",sn:"Demanda",h:"Concentração de classe B/C estável, faixa 18–65 e cobertura reprimida (sem seguro via empregador).",a:["Renda incompatível ou sem demanda.","Público parcialmente aderente.","Forte aderência ao perfil do pecúlio."]},
+    {n:"Tração orgânica",sn:"Tração",h:"Associados que já existem na praça sem unidade local — demanda provada, o ativo de menor risco.",a:["Nenhum associado na praça.","Carteira pequena e dispersa.","Carteira densa sem unidade local."]},
+    {n:"Convênio âncora B2B2C",sn:"Convênio",h:"Potencial de sindicato, servidores, cooperativa ou entidade militar. Um único âncora pode justificar a praça.",a:["Sem entidade-convênio mapeada.","Potencial a desenvolver.","Convênio âncora pronto e com volume."]},
+    {n:"Concorrência / white space",sn:"White space",h:"Demanda alta com baixa cobertura de concorrentes diretos e de planos funerários informais.",a:["Praça saturada.","Concorrência moderada.","Demanda alta com baixa cobertura."]},
+    {n:"Necessidade de atendimento presencial",sn:"Presencial",h:"Carteira idosa, densa e pouco digital que exige balcão para o momento da verdade e a retenção.",a:["Base nova/digital — balcão é custo morto.","Perfil misto.","Base idosa e densa que exige presença."]}
+  ];
+  var DW={roi:[22,20,16,14,10,10,8],presenca:[12,10,16,14,22,20,6],servico:[8,14,8,30,8,4,28]};
+  var W={roi:DW.roi.slice(),presenca:DW.presenca.slice(),servico:DW.servico.slice()};
+  var tipo="roi", tnames={roi:"Ponto-ROI",presenca:"Ponto-Presença",servico:"Ponto-Serviço"};
+  var saved=[], editIdx=null;
+  var SERIES=["#103A63","#B09830","#2E6B4F"];
+
+  function fmt(n,d){return n.toFixed(d).replace(".",",");}
+  function brl(n){return "R$ "+Math.round(n).toLocaleString("pt-BR");}
+
+  var ch=$("crits");
+  C.forEach(function(c,i){
+    var d=document.createElement("div");d.className="crit";
+    d.innerHTML='<div class="crit-top"><div><div class="crit-name">'+c.n+'</div><div class="crit-what">'+c.h+'</div></div>'+
+      '<div class="wbadge"><div class="wn" id="w'+i+'">'+W[tipo][i]+'%</div><div class="wl">peso</div></div></div>'+
+      '<div class="anchors"><div class="anc"><b>0 — nulo</b>'+c.a[0]+'</div><div class="anc"><b>3 — médio</b>'+c.a[1]+'</div><div class="anc"><b>5 — excelente</b>'+c.a[2]+'</div></div>'+
+      '<div class="slide-row"><input type="range" min="0" max="5" step="1" value="3" id="s'+i+'"><div class="sval tnum" id="v'+i+'">3</div><div class="scontrib" id="ct'+i+'">contribui 0,00</div></div>';
+    ch.appendChild(d);
+  });
+
+  function simulate(){
+    var capex=+$("f-capex").value||0,fixo=+$("f-fixo").value||0,novos=+$("f-novos").value||0,
+        ticket=+$("f-ticket").value||0,margem=(+$("f-margem").value||0)/100,churn=(+$("f-churn").value||0)/100,
+        H=Math.max(6,Math.min(120,+$("f-hor").value||36));
+    var ativos=0,acum=-capex,beM=null,pbM=null,acumArr=[],maxAbs=capex||1;
+    for(var m=1;m<=H;m++){
+      ativos=ativos*(1-churn)+novos;
+      var rec=ativos*ticket,mc=rec*margem,res=mc-fixo;
+      if(beM===null&&res>=0)beM=m;
+      acum+=res; if(pbM===null&&acum>=0)pbM=m;
+      acumArr.push(acum); if(Math.abs(acum)>maxAbs)maxAbs=Math.abs(acum);
+    }
+    var sug;
+    if(pbM!==null&&pbM<=18)sug=5; else if(pbM!==null&&pbM<=24)sug=4; else if(pbM!==null&&pbM<=36)sug=3;
+    else if(beM!==null)sug=2; else sug=ativos>0?1:0;
+    return {H:H,ativos:ativos,beM:beM,pbM:pbM,acum:acumArr,finalAcum:acum,maxAbs:maxAbs,sug:sug};
+  }
+  function finChart(s){
+    var W0=520,H0=130,pad=6,n=s.acum.length,max=s.maxAbs;
+    var x=function(i){return pad+(i/(n-1))*(W0-2*pad);};
+    var y=function(v){return H0/2-(v/max)*(H0/2-10);};
+    var pts=s.acum.map(function(v,i){return x(i).toFixed(1)+","+y(v).toFixed(1);}).join(" ");
+    var zero=y(0).toFixed(1);
+    var svg='<svg viewBox="0 0 '+W0+' '+H0+'" preserveAspectRatio="none" role="img" aria-label="Resultado acumulado ao longo do horizonte" style="height:130px;">';
+    svg+='<line x1="'+pad+'" y1="'+zero+'" x2="'+(W0-pad)+'" y2="'+zero+'" stroke="#DCE0DE" stroke-width="1"/>';
+    if(s.pbM){var px=x(s.pbM-1).toFixed(1);svg+='<line x1="'+px+'" y1="6" x2="'+px+'" y2="'+(H0-6)+'" stroke="#2E6B4F" stroke-width="1" stroke-dasharray="3 3"/>';}
+    svg+='<polyline points="'+pts+'" fill="none" stroke="#103A63" stroke-width="2"/></svg>';
+    svg+='<div style="display:flex;justify-content:space-between;font-size:10.5px;color:#869089;margin-top:4px;"><span>mês 1</span><span>resultado acumulado (linha do zero = breakeven do investimento)</span><span>mês '+s.H+'</span></div>';
+    $("fm-chart").innerHTML=svg;
+  }
+  function runFin(){
+    var s=simulate();
+    $("fm-be").textContent=s.beM?("mês "+s.beM):"não atinge";
+    $("fm-pb").textContent=s.pbM?("mês "+s.pbM):"não atinge";
+    $("fm-acum").textContent=brl(s.finalAcum);
+    $("fm-acum").style.color=s.finalAcum>=0?"var(--good)":"var(--bad)";
+    $("fm-ativos").textContent=Math.round(s.ativos).toLocaleString("pt-BR");
+    $("fm-score").textContent=s.sug; finChart(s); return s;
+  }
+  $("fm-apply").addEventListener("click",function(){var s=simulate();$("s1").value=s.sug;calc();});
+  ["f-capex","f-fixo","f-novos","f-ticket","f-margem","f-churn","f-hor"].forEach(function(id){$(id).addEventListener("input",runFin);});
+
+  function radarSVG(series,size,labelColor){
+    var Wd=size||340,LC=labelColor||"#62706C",cx=Wd/2,cy=150,R=92,N=C.length,H0=300;
+    var ang=function(i){return -Math.PI/2+i*2*Math.PI/N;};
+    var pt=function(val,i){var r=val/5*R;return [cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];};
+    var svg='<svg viewBox="0 0 '+Wd+' '+H0+'" role="img" aria-label="Perfil da praça nos sete critérios">';
+    [1,2,3,4,5].forEach(function(g){var p=[];for(var i=0;i<N;i++){var q=pt(g,i);p.push(q[0].toFixed(1)+","+q[1].toFixed(1));}svg+='<polygon points="'+p.join(" ")+'" fill="none" stroke="#DCE0DE" stroke-width="1"/>';});
+    for(var i=0;i<N;i++){var e=pt(5,i);svg+='<line x1="'+cx+'" y1="'+cy+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#E9ECEA" stroke-width="1"/>';}
+    series.forEach(function(se){
+      var p=[];for(var i=0;i<N;i++){var q=pt(se.notes[i],i);p.push(q[0].toFixed(1)+","+q[1].toFixed(1));}
+      svg+='<polygon points="'+p.join(" ")+'" fill="'+se.color+'" fill-opacity="'+(series.length>1?0.12:0.16)+'" stroke="'+se.color+'" stroke-width="2"/>';
+      for(var j=0;j<N;j++){var q=pt(se.notes[j],j);svg+='<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="2.5" fill="'+se.color+'"/>';}
+    });
+    for(var i=0;i<N;i++){var l=pt(6.05,i),tx=l[0],ty=l[1],anch="middle";if(tx<cx-8)anch="end";else if(tx>cx+8)anch="start";
+      svg+='<text x="'+tx.toFixed(1)+'" y="'+ty.toFixed(1)+'" fill="'+LC+'" font-size="10.5" font-family="Inter,sans-serif" text-anchor="'+anch+'" dominant-baseline="middle">'+C[i].sn+'</text>';}
+    svg+='</svg>';return svg;
+  }
+
+  function drawMeter(sc,gateOk){
+    var Wd=340,H0=54,pad=4,tY=20,tH=12,x=function(v){return pad+(v/5)*(Wd-2*pad);};
+    var bands=[[0,2,"#A23A33"],[2,3,"#869089"],[3,4,"#C0892F"],[4,5,"#2E6B4F"]];
+    var s='<svg viewBox="0 0 '+Wd+' '+H0+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Medidor de score">';
+    bands.forEach(function(b){s+='<rect x="'+x(b[0]).toFixed(1)+'" y="'+tY+'" width="'+(x(b[1])-x(b[0])).toFixed(1)+'" height="'+tH+'" fill="'+b[2]+'" opacity="'+(gateOk?0.92:0.3)+'"/>';});
+    [1,2,3,4].forEach(function(t){s+='<line x1="'+x(t).toFixed(1)+'" y1="'+tY+'" x2="'+x(t).toFixed(1)+'" y2="'+(tY+tH)+'" stroke="#15211F" stroke-width="1" opacity="0.25"/>';});
+    if(gateOk){var mx=x(sc);s+='<polygon points="'+(mx-6).toFixed(1)+','+(tY-3)+' '+(mx+6).toFixed(1)+','+(tY-3)+' '+mx.toFixed(1)+','+(tY+4)+'" fill="#F3F4F2"/><line x1="'+mx.toFixed(1)+'" y1="'+(tY-3)+'" x2="'+mx.toFixed(1)+'" y2="'+(tY+tH+3)+'" stroke="#F3F4F2" stroke-width="2"/>';}
+    ["0","1","2","3","4","5"].forEach(function(t,i){s+='<text x="'+x(i).toFixed(1)+'" y="48" fill="#869089" font-size="9" font-family="Inter,sans-serif" text-anchor="middle">'+t+'</text>';});
+    s+='</svg>';$("meter").innerHTML=s;
+  }
+
+  function bandClass(sc,gateOk){
+    if(!gateOk)return{k:"bad",t:"Reprovado nos gates"};
+    if(sc>=4)return{k:"good",t:"Prioritária — abrir"};
+    if(sc>=3)return{k:"warn",t:"Viável — formato enxuto"};
+    if(sc>=2)return{k:"neu",t:"Observação — reavaliar"};
+    return{k:"bad",t:"Descartar"};
+  }
+  var pillCol={good:["var(--good-bg)","var(--good)"],warn:["var(--warn-bg)","var(--warn-ink)"],neu:["var(--neu-bg)","var(--neu)"],bad:["var(--bad-bg)","var(--bad)"]};
+
+  function recommend(sc,notes,gateOk){
+    var corr=notes[0],viab=notes[1],trac=notes[3],conv=notes[4],pres=notes[6],f,p,c;
+    if(!gateOk)return{f:"Não abrir — gate reprovado.",p:"—",c:"Sem investimento."};
+    if(pres>=4&&trac>=4)f="Unidade de serviço enxuta — balcão focado no momento da verdade e na retenção da base.";
+    else if(corr>=4&&viab>=3)f="Célula comercial / desk de vendas apoiado em corretor parceiro.";
+    else if(conv>=4)f="Presença leve ancorada em convênio (posto de atendimento + canal digital).";
+    else if(sc<2)f="Sem unidade — atendimento 100% remoto (0800 + digital).";
+    else f="Modelo digital-first com presença mínima, encaixado em estrutura de parceiro.";
+    if(sc>=4){p="Dentro do horizonte (18–36 meses).";c="Médio a alto — a confirmar valores.";}
+    else if(sc>=3){p="Estendido; exige formato enxuto para caber na margem.";c="Contido — a confirmar valores.";}
+    else if(sc>=2){p="Não recomendado abrir agora.";c="Mínimo / adiar.";}
+    else{p="—";c="Sem investimento.";}
+    return{f:f,p:p,c:c};
+  }
+
+  function calibNote(){
+    var canal=$("cal-canal").value,digi=$("cal-digi").value,m=[];
+    if(canal==="balcao")m.push("Predominância de walk-in eleva o peso prático de uma presença física — confirme se não é só ausência de corretor a desenvolver.");
+    else m.push("Venda majoritariamente via corretor/convênio: a unidade física não precisa ser o motor de venda — pondere formatos enxutos.");
+    if(digi==="baixa")m.push("Base pouco digital puxa para cima o atendimento presencial: o público não migra para o app.");
+    else if(digi==="alta")m.push("Base já digital reduz a necessidade de balcão: o transacional pode ser servido por app/0800.");
+    $("cal-note").innerHTML=m.join(" ");
+  }
+
+  function calc(){
+    var notes=[],sum=0;
+    for(var i=0;i<C.length;i++){
+      var v=+$("s"+i).value;notes.push(v);$("v"+i).textContent=v;
+      var contrib=v*W[tipo][i]/100;$("ct"+i).textContent="contribui "+fmt(contrib,2);
+      sum+=v*W[tipo][i];
+    }
+    var sc=sum/100;
+    var gateOk=(+$("g1").value)*(+$("g2").value)*(+$("g3").value)!==0;
+    $("gate1").classList.toggle("fail",$("g1").value==="0");
+    $("gate2").classList.toggle("fail",$("g2").value==="0");
+    $("gate3").classList.toggle("fail",$("g3").value==="0");
+    $("r-score").textContent=fmt(sc,2);$("r-100").textContent=Math.round(sc/5*100);
+    var bc=bandClass(sc,gateOk),col=pillCol[bc.k];
+    var pill=$("r-pill");pill.textContent=bc.t;pill.style.background=col[0];pill.style.color=col[1];
+    drawMeter(sc,gateOk);
+    $("r-radar").innerHTML=radarSVG([{notes:notes,color:"#C9A93B"}],340,"#A8B0AD");
+    var rec=recommend(sc,notes,gateOk);
+    $("r-format").textContent=rec.f;$("r-payback").textContent=rec.p;$("r-capex").textContent=rec.c;
+    var pr=$("praca").value||"Esta praça";
+    $("r-context").textContent="Tipologia: "+tnames[tipo]+($("praca").value?" · "+$("praca").value:"");
+    $("r-exec").textContent=pr+": "+bc.t+". "+rec.f+" "+(gateOk?("Payback: "+rec.p.toLowerCase()):"");
+    var arr=C.map(function(c,i){return{n:c.n,c:notes[i]*W[tipo][i]/100,max:5*W[tipo][i]/100};}).sort(function(a,b){return b.c-a.c;});
+    var maxc=Math.max.apply(null,arr.map(function(a){return a.max;}));
+    $("r-drivers").innerHTML=arr.slice(0,5).map(function(a){var pct=maxc?Math.round(a.c/maxc*100):0;return '<div class="drv"><span class="dn">'+a.n+'</span><span class="drvbar"><i style="width:'+pct+'%"></i></span><span class="dv tnum">'+fmt(a.c,2)+'</span></div>';}).join("");
+    $("m-aval").textContent=$("aval").value||"—";$("m-praca").textContent=$("praca").value||"—";$("m-data").textContent=$("data").value||"—";
+    return{sc:sc,gateOk:gateOk,band:bc,notes:notes};
+  }
+
+  function setWeights(){for(var i=0;i<C.length;i++)$("w"+i).textContent=W[tipo][i]+"%";}
+
+  $("seg").addEventListener("click",function(e){var b=e.target.closest(".seg");if(!b)return;tipo=b.getAttribute("data-t");[].forEach.call(this.querySelectorAll(".seg"),function(x){x.classList.toggle("on",x===b);});setWeights();calc();});
+  ["g1","g2","g3"].forEach(function(id){$(id).addEventListener("change",calc);});
+  ["cal-canal","cal-digi"].forEach(function(id){$(id).addEventListener("change",calibNote);});
+  ["praca","aval","data"].forEach(function(id){$(id).addEventListener("input",calc);});
+  for(var i=0;i<C.length;i++)$("s"+i).addEventListener("input",calc);
+
+  function buildWtable(){
+    var t=$("wtable");
+    var head='<tr><th>Critério</th><th>ROI</th><th>Presença</th><th>Serviço</th></tr>';
+    var rows=C.map(function(c,i){return '<tr><td>'+c.n+'</td>'+
+      '<td><input type="number" min="0" max="100" data-k="roi" data-i="'+i+'" value="'+W.roi[i]+'"></td>'+
+      '<td><input type="number" min="0" max="100" data-k="presenca" data-i="'+i+'" value="'+W.presenca[i]+'"></td>'+
+      '<td><input type="number" min="0" max="100" data-k="servico" data-i="'+i+'" value="'+W.servico[i]+'"></td></tr>';}).join("");
+    var sums='<tr><td style="font-weight:500;">Soma</td><td class="wsum" id="sum-roi"></td><td class="wsum" id="sum-presenca"></td><td class="wsum" id="sum-servico"></td></tr>';
+    t.innerHTML=head+rows+sums;
+    [].forEach.call(t.querySelectorAll("input"),function(inp){inp.addEventListener("input",function(){var k=this.getAttribute("data-k"),idx=+this.getAttribute("data-i");W[k][idx]=+this.value||0;updWsums();setWeights();calc();renderRank();});});
+    updWsums();
+  }
+  function updWsums(){["roi","presenca","servico"].forEach(function(k){var s=W[k].reduce(function(a,b){return a+b;},0);var el=$("sum-"+k);el.textContent=s+"%";el.className="wsum "+(s===100?"ok":"err");});}
+  $("w-reset").addEventListener("click",function(){W={roi:DW.roi.slice(),presenca:DW.presenca.slice(),servico:DW.servico.slice()};buildWtable();setWeights();calc();renderRank();});
+
+  function renderRank(){
+    var host=$("rankhost");
+    if(!saved.length){host.innerHTML='<div class="empty">Nenhuma praça salva ainda. Preencha a avaliação e clique em “Salvar praça na comparação” (seção 07) — ou clique em “Carregar exemplo” abaixo.</div>';$("cmp-radar-host").innerHTML="";persist();return;}
+    var order=saved.map(function(p,i){return{p:p,i:i};}).sort(function(a,b){return (b.p.gateOk-a.p.gateOk)||(b.p.sc-a.p.sc);});
+    var rows=order.map(function(o,idx){var p=o.p;return '<tr><td class="rk-pos">'+(idx+1)+'</td><td>'+p.name+(p.uf?' — '+p.uf:'')+'</td><td>'+p.tipo+'</td>'+
+      '<td class="tnum">'+fmt(p.sc,2)+'</td><td><span class="tag '+p.band.k+'">'+p.band.t+'</span></td>'+
+      '<td style="text-align:right;white-space:nowrap;"><button class="sm" data-edit="'+o.i+'">editar</button> <button class="sm" data-del="'+o.i+'">remover</button></td></tr>';}).join("");
+    host.innerHTML='<table class="rank"><tr><th>#</th><th>Praça</th><th>Tipologia</th><th>Score</th><th>Veredito</th><th></th></tr>'+rows+'</table>';
+    [].forEach.call(host.querySelectorAll("[data-del]"),function(b){b.addEventListener("click",function(){saved.splice(+this.getAttribute("data-del"),1);renderRank();});});
+    [].forEach.call(host.querySelectorAll("[data-edit]"),function(b){b.addEventListener("click",function(){loadInto(+this.getAttribute("data-edit"));});});
+    var top=order.slice(0,3).map(function(o,i){return{notes:o.p.notes,color:SERIES[i],label:o.p.name};});
+    var legend=top.map(function(s){return '<span><span class="swatch" style="background:'+s.color+'"></span>'+s.label+'</span>';}).join("");
+    $("cmp-radar-host").innerHTML='<div class="cmp-radar"><div class="mini" style="text-align:center;margin-bottom:6px;">Perfil comparado — top 3</div>'+radarSVG(top,360)+'<div class="cmp-legend">'+legend+'</div></div>';
+    persist();
+  }
+
+  function snapshot(){
+    var r=calc();
+    return {name:$("praca").value.trim()||"Praça sem nome",uf:$("uf").value.trim(),pop:$("pop").value,aval:$("aval").value,data:$("data").value,obs:$("obs").value,
+      tipo:tnames[tipo],tkey:tipo,gates:{g1:$("g1").value,g2:$("g2").value,g3:$("g3").value},notes:r.notes,
+      fin:{capex:$("f-capex").value,fixo:$("f-fixo").value,novos:$("f-novos").value,ticket:$("f-ticket").value,margem:$("f-margem").value,churn:$("f-churn").value,hor:$("f-hor").value},
+      sc:r.sc,gateOk:r.gateOk,band:r.band};
+  }
+  function loadInto(i){
+    var p=saved[i];
+    $("praca").value=p.name;$("uf").value=p.uf||"";$("pop").value=p.pop||"";$("aval").value=p.aval||"";$("data").value=p.data||"";$("obs").value=p.obs||"";
+    tipo=p.tkey||"roi";[].forEach.call($("seg").querySelectorAll(".seg"),function(x){x.classList.toggle("on",x.getAttribute("data-t")===tipo);});
+    $("g1").value=p.gates.g1;$("g2").value=p.gates.g2;$("g3").value=p.gates.g3;
+    for(var k=0;k<C.length;k++)$("s"+k).value=p.notes[k];
+    if(p.fin){$("f-capex").value=p.fin.capex;$("f-fixo").value=p.fin.fixo;$("f-novos").value=p.fin.novos;$("f-ticket").value=p.fin.ticket;$("f-margem").value=p.fin.margem;$("f-churn").value=p.fin.churn;$("f-hor").value=p.fin.hor;}
+    saved.splice(i,1);editIdx=null;
+    setWeights();runFin();calibNote();calc();renderRank();
+    $("editing").className="editing on";$("editing").textContent='Editando “'+p.name+'” — ajuste e salve novamente para atualizar.';
+    $("add-label").textContent="Salvar alterações";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  $("add").addEventListener("click",function(){
+    saved.push(snapshot());renderRank();
+    $("editing").className="editing";$("add-label").textContent="Salvar praça na comparação";
+    try{$("rankhost").scrollIntoView({behavior:"smooth",block:"nearest"});}catch(e){}
+  });
+
+  $("csv").addEventListener("click",function(){
+    if(!saved.length){alert("Salve ao menos uma praça antes de exportar.");return;}
+    var head=["Praca","UF","Populacao","Tipologia"].concat(C.map(function(c){return c.n;})).concat(["Score_5","Score_100","Veredito","Capex","CustoFixoMes","Observacoes"]);
+    var lines=[head.join(";")];
+    saved.forEach(function(p){var row=['"'+p.name+'"',p.uf,'"'+(p.pop||"")+'"',p.tipo].concat(p.notes).concat([fmt(p.sc,2),Math.round(p.sc/5*100),p.band.t,(p.fin?p.fin.capex:""),(p.fin?p.fin.fixo:""),'"'+(p.obs||"").replace(/"/g,"'")+'"']);lines.push(row.join(";"));});
+    dl(new Blob(["\ufeff"+lines.join("\r\n")],{type:"text/csv;charset=utf-8;"}),"radar-expansao-gboex.csv");
+  });
+  $("save-json").addEventListener("click",function(){dl(new Blob([JSON.stringify({saved:saved,W:W},null,2)],{type:"application/json"}),"sessao-radar-gboex.json");});
+  $("load-json").addEventListener("click",function(){$("file-json").click();});
+  $("file-json").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){try{var d=JSON.parse(rd.result);if(d.saved)saved=d.saved;if(d.W){W=d.W;buildWtable();}setWeights();calc();renderRank();alert("Sessão carregada: "+saved.length+" praça(s).");}catch(err){alert("Arquivo inválido.");}};rd.readAsText(f);});
+  $("clear-all").addEventListener("click",function(){if(saved.length&&confirm("Remover todas as praças salvas?")){saved=[];renderRank();}});
+  $("demo").addEventListener("click",function(){
+    var ex=[{name:"Caxias do Sul",uf:"RS",tkey:"roi",notes:[4,4,4,3,3,4,2]},
+            {name:"Pelotas",uf:"RS",tkey:"presenca",notes:[2,2,3,2,4,4,3]},
+            {name:"Canoas",uf:"RS",tkey:"servico",notes:[3,3,3,5,2,1,5]}];
+    ex.forEach(function(e){var sum=0;for(var i=0;i<C.length;i++)sum+=e.notes[i]*W[e.tkey][i];var sc=sum/100,bc=bandClass(sc,true);
+      saved.push({name:e.name,uf:e.uf,pop:"",aval:"",data:"",obs:"",tipo:tnames[e.tkey],tkey:e.tkey,gates:{g1:"1",g2:"1",g3:"1"},notes:e.notes,fin:{capex:"120000",fixo:"18000",novos:"25",ticket:"90",margem:"35",churn:"1.0",hor:"36"},sc:sc,gateOk:true,band:bc});});
+    renderRank();
+  });
+
+  $("print").addEventListener("click",function(){window.print();});
+  $("reset").addEventListener("click",function(){
+    ["praca","uf","pop","aval","data","obs"].forEach(function(id){$(id).value="";});
+    for(var i=0;i<C.length;i++)$("s"+i).value=3;
+    $("g1").value="1";$("g2").value="1";$("g3").value="1";
+    editIdx=null;$("editing").className="editing";$("add-label").textContent="Salvar praça na comparação";calc();
+  });
+
+  function dl(blob,name){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();}
+  function persist(){try{localStorage.setItem("gboex_radar_v3",JSON.stringify({saved:saved,W:W}));}catch(e){}}
+  function restore(){try{var d=JSON.parse(localStorage.getItem("gboex_radar_v3"));if(d){if(d.saved)saved=d.saved;if(d.W)W=d.W;}}catch(e){}}
+
+  restore();buildWtable();calibNote();setWeights();runFin();calc();renderRank();
+})();
+</script>
+</body>
+</html>
