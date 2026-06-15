@@ -190,6 +190,8 @@ details[open] summary::before{content:'–';}
 .gchip.ok{background:rgba(46,107,79,.22);color:#9FD9BC;}
 .gchip.no{background:rgba(162,58,51,.26);color:#E7A9A3;}
 button.sm.view{border-color:var(--brand);color:var(--brand-deep);}
+table.rank tr.rk-row{cursor:pointer;}
+table.rank tr.rk-row:hover td{background:var(--brass-soft);}
 @media print{
   body{background:#fff;}
   .hdr{background:#fff;color:var(--ink);border-bottom:2px solid var(--brand-deep);}
@@ -330,7 +332,7 @@ button.sm.view{border-color:var(--brand);color:var(--brand-deep);}
   </section>
 
   <section>
-    <div class="sec-head"><span class="sec-num">08</span><h2>Comparação de praças</h2><span class="sub">ranqueada por veredito e score</span></div>
+    <div class="sec-head"><span class="sec-num">08</span><h2>Comparação de praças</h2><span class="sub">clique numa praça para ver o painel</span></div>
     <div id="rankhost"><div class="empty">Nenhuma praça salva ainda. Preencha a avaliação e clique em “Salvar praça na comparação” (seção 07) — ou clique em “Carregar exemplo” abaixo.</div></div>
     <div id="cmp-radar-host"></div>
     <div class="btnrow no-print">
@@ -626,13 +628,14 @@ button.sm.view{border-color:var(--brand);color:var(--brand-deep);}
     var host=$("rankhost");
     if(!saved.length){host.innerHTML='<div class="empty">Nenhuma praça salva ainda. Preencha a avaliação e clique em “Salvar praça na comparação” (seção 07) — ou clique em “Carregar exemplo” abaixo.</div>';$("cmp-radar-host").innerHTML="";persist();return;}
     var order=saved.map(function(p,i){return{p:p,i:i};}).sort(function(a,b){return (b.p.gateOk-a.p.gateOk)||(b.p.sc-a.p.sc);});
-    var rows=order.map(function(o,idx){var p=o.p;return '<tr><td class="rk-pos">'+(idx+1)+'</td><td>'+p.name+(p.uf?' — '+p.uf:'')+'</td><td>'+p.tipo+'</td>'+
+    var rows=order.map(function(o,idx){var p=o.p;return '<tr class="rk-row" data-row="'+o.i+'" title="Clique para ver o painel desta praça"><td class="rk-pos">'+(idx+1)+'</td><td>'+p.name+(p.uf?' — '+p.uf:'')+'</td><td>'+p.tipo+'</td>'+
       '<td class="tnum">'+fmt(p.sc,2)+'</td><td><span class="tag '+p.band.k+'">'+p.band.t+'</span></td>'+
       '<td style="text-align:right;white-space:nowrap;"><button class="sm view" data-view="'+o.i+'">ver</button> <button class="sm" data-edit="'+o.i+'">editar</button> <button class="sm" data-del="'+o.i+'">remover</button></td></tr>';}).join("");
     host.innerHTML='<table class="rank"><tr><th>#</th><th>Praça</th><th>Tipologia</th><th>Score</th><th>Veredito</th><th></th></tr>'+rows+'</table>';
     [].forEach.call(host.querySelectorAll("[data-del]"),function(b){b.addEventListener("click",function(){saved.splice(+this.getAttribute("data-del"),1);renderRank();});});
     [].forEach.call(host.querySelectorAll("[data-edit]"),function(b){b.addEventListener("click",function(){loadInto(+this.getAttribute("data-edit"));});});
     [].forEach.call(host.querySelectorAll("[data-view]"),function(b){b.addEventListener("click",function(){showDetail(+this.getAttribute("data-view"));});});
+    [].forEach.call(host.querySelectorAll("tr.rk-row"),function(tr){tr.addEventListener("click",function(e){if(e.target.closest("button"))return;showDetail(+this.getAttribute("data-row"));});});
     var top=order.slice(0,3).map(function(o,i){return{notes:o.p.notes,color:SERIES[i],label:o.p.name};});
     var legend=top.map(function(s){return '<span><span class="swatch" style="background:'+s.color+'"></span>'+s.label+'</span>';}).join("");
     $("cmp-radar-host").innerHTML='<div class="cmp-radar"><div class="mini" style="text-align:center;margin-bottom:6px;">Perfil comparado — top 3</div>'+radarSVG(top,360)+'<div class="cmp-legend">'+legend+'</div></div>';
